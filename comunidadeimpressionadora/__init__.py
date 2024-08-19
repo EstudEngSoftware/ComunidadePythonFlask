@@ -3,12 +3,18 @@ from flask_sqlalchemy import SQLAlchemy  #import banco de dados
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
+import os
 
 #cria o app
 # Configurações existentes
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///comunidade.db'
+
 app.config['SECRET_KEY'] = 'b80d378ec0e5b92e0af2b623a35c0cac'
+if os.getenv("DATABASE_URL"):
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///comunidade.db'
+
 
 database = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
