@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+  <!--pagina para exibir um post individual-->
+<div class="container mt-3">
+     <div class="row  border mt-4 p-3 meupost">
+        <div class="col col-3  ">
+              <div class="image p-2">
+                  <img src="{{ url_for('static', filename='fotos_perfil/{}'.format(post.autor.foto_perfil)) }}" class="rounded" width="200" >
+                    <strong>{{ post.autor.username }}</strong>
+
+                  <div class="row justify-content-center">
+                        <!--percorre a lista de cursos que o usuario esta escrito e exibe-->
+                        {% for curso in post.autor.cursos.split(';') %}
+                             <button type="button" class="btn btn-success mt-2 btn-block" disabled>{{ curso }}</button>
+                        {% endfor %}
+                </div>
+
+              </div>
+        </div>
+        <div class="col col-9" >
+            <h3>{{ post.titulo }}
+                  <small class="text-muted fs-6"> - Data de Criação:{{ post.data_criacao.strftime('%d/%m/%Y') }}
+                   {% if form %}   <!--só vai aparecer se for dono do post-->
+                       <!--esse id esta no formulario abaixo-->
+                      - <a href="#form_editarpost"> Editar Post</a> /
+                      <a class="text-danger" href="#" data-bs-toggle="modal" data-bs-target="#ExcluirPost">Exluir Post</a>
+                    {% endif %}
+                  </small>
+
+           </h3>
+            <p>{{ post.corpo }}</p>
+        </div>
+    </div>
+</div>
+ <!--se existir um post e o usuario for o autor, exibe o formulario,
+  continuacao da logica no def exibir_post(post_id): no routes-->
+{% if form %}
+  <div class="container" >
+       <div class="row">
+          <div class="col">
+              <!--formulario de Post 4---------------------->
+              <!--id vai -->
+            <form id="form_editarpost" method="post" action="" class="border p-4 mt-2" enctype="multipart/form-data" novalidate>
+                {{ form.csrf_token }}   <!--mensagem de alerta-->
+                <legend>Editar Post</legend>
+                <fieldset>
+                     <div class="form-group">  <!--titulo vem do forms.py -->
+                        {{ form.titulo.label(class="form-control-label") }}
+                        {% if form.titulo.errors %}   <!--se tiver algum erro -->
+                           {{ form.titulo(class="form-control is-invalid") }}  <!--caixa de formulario vai ficar vermelha-->
+                         <div class="invalid-feedback">  <!--exibe os erros formatado com bootstrat -->
+                           {% for erro in form.titulo.errors %}  <!--fazer um for para cada erro-->
+                               {{ erro }}
+                           {% endfor %}
+                         </div>
+                        {% else %}  <!--caso contrario exibe a caixa normalmente-->
+                             {{ form.titulo(class="form-control") }}<!--caixa de formulario-->
+                        {% endif %}
+                    </div>
+
+                     <div class="form-group">
+                        {{ form.corpo.label(class="form-control-label") }}
+                        {% if form.corpo.errors %}   <!--se tiver algum erro -->
+                           {{ form.corpo(class="form-control is-invalid") }}  <!--caixa de formulario vai ficar vermelha-->
+                         <div class="invalid-feedback">  <!--exibe os erros formatado com bootstrat -->
+                           {% for erro in form.corpo.errors %}  <!--fazer um for para cada erro-->
+                               {{ erro }}
+                           {% endfor %}
+                         </div>
+                        {% else %}  <!--caso contrario exibe a caixa normalmente-->
+                             {{ form.corpo(class="form-control") }}<!--caixa de formulario-->
+                        {% endif %}
+                    </div>
+                </fieldset>
+                 <hr>
+                {{ form.botao_submit_criarpost(class="btn btn-primary mt-2") }}
+            </form>
+        </div>
+    </div>
+ </div>
+
+{% endif %}
+
+<!-- Modal -->
+<div class="modal fade" id="ExcluirPost" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Excluir Post</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+       Você tem certeza de que deseja excluir este post? Esta ação é irreversível e não poderá ser desfeita.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <form method="post" action="{{ url_for('excluir_post', post_id=post.id) }}">
+               <button type="submit" class="btn btn-danger">Excluir Post</button>
+          </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
